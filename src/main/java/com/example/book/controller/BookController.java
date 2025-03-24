@@ -1,6 +1,12 @@
 package com.example.book.controller;
 
 import com.example.book.model.Book;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,11 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * REST controller for managing Book entities.
  * Provides endpoints for creating, reading, updating, and deleting books.
@@ -24,6 +25,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/books")
 public class BookController {
+
+    private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     /**
      * In-memory data store for books.
@@ -43,8 +46,10 @@ public class BookController {
      */
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
+        logger.info("Creating new book: {}", book.getTitle());
         book.setId(nextId++);
         bookMap.put(book.getId(), book);
+        logger.info("Book created with ID: {}", book.getId());
         return new ResponseEntity<>(book, HttpStatus.CREATED);
     }
 
@@ -55,6 +60,7 @@ public class BookController {
      */
     @GetMapping
     public ResponseEntity<List<Book>> getBooks() {
+        logger.info("Fetching all books, total count: {}", bookMap.size());
         return new ResponseEntity<>(new ArrayList<>(bookMap.values()), HttpStatus.OK);
     }
 
@@ -67,10 +73,12 @@ public class BookController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<?> getBook(@PathVariable int id) {
+        logger.info("Fetching book with ID: {}", id);
         Book book = bookMap.get(id);
         if (book != null) {
             return ResponseEntity.ok(book);
         } else {
+            logger.warn("Book with ID {} not found", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
         }
     }
@@ -85,14 +93,17 @@ public class BookController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBook(@PathVariable int id, @RequestBody Book updatedBook) {
+        logger.info("Updating book with ID: {}", id);
         Book book = bookMap.get(id);
         if (book == null) {
+            logger.warn("Book with ID {} not found for update", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
         }
         book.setTitle(updatedBook.getTitle());
         book.setAuthor(updatedBook.getAuthor());
         book.setContent(updatedBook.getContent());
         bookMap.put(id, book);
+        logger.info("Book with ID {} updated", id);
         return ResponseEntity.ok(book);
     }
 
@@ -105,10 +116,13 @@ public class BookController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBook(@PathVariable int id) {
+        logger.info("Deleting book with ID: {}", id);
         Book book = bookMap.remove(id);
         if (book != null) {
+            logger.info("Book with ID {} deleted", id);
             return ResponseEntity.ok("Book deleted");
         } else {
+            logger.warn("Book with ID {} not found for deletion", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
         }
     }
