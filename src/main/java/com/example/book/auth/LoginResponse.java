@@ -1,30 +1,17 @@
 package com.example.book.auth;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 /**
  * Represents the response returned after successful login containing the JWT token.
  */
+@Getter
+@AllArgsConstructor
 public class LoginResponse {
 
     /**
      * The JWT token generated upon successful authentication.
      */
     private String token;
-
-    /**
-     * Constructor to create a new {@link LoginResponse}.
-     *
-     * @param token The JWT token.
-     */
-    public LoginResponse(String token) {
-        this.token = token;
-    }
-
-    /**
-     * Returns the JWT token.
-     *
-     * @return The token.
-     */
-    public String getToken() {
-        return token;
-    }
 }
